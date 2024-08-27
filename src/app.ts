@@ -4,7 +4,13 @@ import dotenv from 'dotenv';
 import { createClient } from 'redis';
 import { Pool } from 'pg';
 
+import session from 'express-session';
+import passport from './config/passport'; // Import your passport configuration
+
+// Import routes
 import indexRoutes from './routes/index';
+import authRoutes from './routes/authRoutes';
+
 // Load environment variables
 dotenv.config();
 
@@ -44,8 +50,24 @@ pool.connect()
   .then(() => console.log('Connected to PostgreSQL database'))
   .catch(err => console.error('PostgreSQL connection error:', err));
 
-// Routes
+// Session management (using a simple session setup for demonstration)
+app.use(session({
+  secret: process.env.SESSION_SECRET!, // Ensure you have a SESSION_SECRET in your .env file
+  resave: false,
+  saveUninitialized: false,
+}));
+
+// Initialize Passport and restore authentication state from session
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+
+// Use routes
 app.use('/', indexRoutes);
+app.use('/auth', authRoutes);
+
+// Start server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
