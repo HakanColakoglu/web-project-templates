@@ -17,6 +17,13 @@ const mockRedisClient = {
   get: jest.fn().mockImplementation((key: string) => {
     return Promise.resolve(mockDataStore[key] || null);
   }),
+  del: jest.fn().mockImplementation((key: string) => {
+    delete mockDataStore[key];
+    return Promise.resolve(1); // Return 1 to simulate successful deletion
+  }),
+  exists: jest.fn().mockImplementation((key: string) => {
+    return Promise.resolve(key in mockDataStore ? 1 : 0); // Simulate Redis' EXISTS command
+  }),
 };
 
 // Mock the createClient function to return the mockRedisClient
