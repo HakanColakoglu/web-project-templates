@@ -1,4 +1,8 @@
-const mockDataStore: Record<string, any[]> = {}; // In-memory store to mock PostgreSQL data
+const mockDataStore: Record<string, any[]> = {}; // General mock data store
+const mockUserDataStore: Record<string, any[]> = {
+  users: [], // Mock users table specifically
+}; 
+
 let isPoolClosed = false; // Track if the pool is closed
 
 // Mock pool object
@@ -22,24 +26,58 @@ const mockPool = {
     const [command] = trimmedQuery.split(' ');
 
     if (command.toLowerCase() === 'select') {
+      // Handle SELECT queries
       const tableMatch = trimmedQuery.match(/FROM (\w+)/i);
       if (tableMatch) {
         const [, tableName] = tableMatch;
-        return Promise.resolve({ rows: mockDataStore[tableName] || [] });
+
+        if (tableName.toLowerCase() === 'users') {
+          // Specific logic for 'users' table
+          const userTableMatch = trimmedQuery.match(/FROM users WHERE username = \$(\d)/i);
+          if (userTableMatch) {
+            const username = params?.[0];
+            const user = mockUserDataStore['users'].find((u) => u.username === username);
+            return Promise.resolve({ rows: user ? [user] : [] });
+          }
+          const userByIdMatch = trimmedQuery.match(/FROM users WHERE id = \$(\d)/i);
+          if (userByIdMatch) {
+            const id = params?.[0];
+            const user = mockUserDataStore['users'].find((u) => u.id === id);
+            return Promise.resolve({ rows: user ? [user] : [] });
+          }
+          return Promise.resolve({ rows: [] });
+        } else {
+          // General SELECT logic for other tables
+          return Promise.resolve({ rows: mockDataStore[tableName] || [] });
+        }
       }
       return Promise.resolve({ rows: [] });
     }
 
     if (command.toLowerCase() === 'insert') {
+      // Handle INSERT queries
       const insertMatch = trimmedQuery.match(/INSERT INTO (\w+)/i);
       if (insertMatch) {
         const [, tableName] = insertMatch;
-        if (!mockDataStore[tableName]) {
-          mockDataStore[tableName] = [];
-        }
 
-        mockDataStore[tableName].push(params);
-        return Promise.resolve({ rows: [params] });
+        if (tableName.toLowerCase() === 'users') {
+          // Specific logic for inserting into 'users' table
+          const [username, password] = params || [];
+          const newUser = {
+            id: mockUserDataStore['users'].length + 1,
+            username,
+            password,
+          };
+          mockUserDataStore['users'].push(newUser);
+          return Promise.resolve({ rows: [newUser] });
+        } else {
+          // General INSERT logic for other tables
+          if (!mockDataStore[tableName]) {
+            mockDataStore[tableName] = [];
+          }
+          mockDataStore[tableName].push(params);
+          return Promise.resolve({ rows: [params] });
+        }
       }
       return Promise.resolve({ rows: [] });
     }

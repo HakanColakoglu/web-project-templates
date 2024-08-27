@@ -37,15 +37,19 @@ app.use(passport.session());
 app.use('/', indexRoutes);
 app.use('/auth', authRoutes);
 
-const server = app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+// Only start the server if this module is the main module
+// You don't have to do this but your test might have issues otherwise.
+if (require.main === module) {
+  const server = app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
 
-// Initialize services
-connectRedis();
-connectPostgres();
+  // Initialize services
+  connectRedis();
+  connectPostgres();
 
-// Graceful shutdown
-shutdownServices(server, { closeRedis, closePostgres });
+  // Graceful shutdown
+  shutdownServices(server, { closeRedis, closePostgres });
+}
 
-export { app, pool, redisClient };
+export { app, pool, redisClient, connectRedis, closeRedis, connectPostgres, closePostgres };

@@ -32,6 +32,7 @@ passport.use(
         // If credentials are valid, return the user object
         return done(null, user);
       } catch (error) {
+        console.error('Error in LocalStrategy:', error);
         return done(error);
       }
     }
@@ -50,6 +51,7 @@ passport.deserializeUser(async (id: number, done) => {
     const user: User = result.rows[0];
     done(null, user);
   } catch (error) {
+    console.error('Error in deserializeUser:', error);
     done(error, null);
   }
 });

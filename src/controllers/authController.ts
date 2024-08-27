@@ -17,7 +17,7 @@ export const signUp = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Username already exists' });
     }
 
-    // Hash password
+    // Hash password. Salt rounds could be set in .env
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Insert user into the database
