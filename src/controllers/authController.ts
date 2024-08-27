@@ -5,7 +5,18 @@ import { pool } from '../app';
 // Sign-up function
 export const signUp = async (req: Request, res: Response) => {
   const { username, password } = req.body;
+
   try {
+    // Check if user already exists
+    const userCheckResult = await pool.query(
+      'SELECT * FROM users WHERE username = $1',
+      [username]
+    );
+
+    if (userCheckResult.rows.length > 0) {
+      return res.status(400).json({ message: 'Username already exists' });
+    }
+
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
