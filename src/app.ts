@@ -28,9 +28,9 @@ const redisClient = createClient({
   },
 });
 
-// redisClient.connect()
-//   .then(() => console.log('Redis client connected'))
-//   .catch(err => console.error('Redis connection error:', err));
+redisClient.connect()
+  .then(() => console.log('Redis client connected'))
+  .catch(err => console.error('Redis connection error:', err));
 
 // Initialize PostgreSQL client
 const pool = new Pool({
@@ -40,9 +40,9 @@ const pool = new Pool({
   password: process.env.DB_PASS,
   port: Number(process.env.DB_PORT),
 });
-// pool.connect()
-//   .then(() => console.log('Connected to PostgreSQL database'))
-//   .catch(err => console.error('PostgreSQL connection error:', err));
+pool.connect()
+  .then(() => console.log('Connected to PostgreSQL database'))
+  .catch(err => console.error('PostgreSQL connection error:', err));
 
 // Routes
 app.use('/', indexRoutes);
