@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   app:
@@ -7,11 +7,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
-    environment:
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - REDIS_HOST=cache
-      - REDIS_PORT=6379
     depends_on:
       - postgres
       - cache
@@ -25,11 +20,15 @@ services:
     volumes:
       - ./database/postgres:/var/lib/postgresql/data
       - ./postgres-init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
 
   cache:
     image: redis:6
     volumes:
       - ./cache/redis:/data
+    ports:
+      - "6379:6379"
 
 volumes:
   db_data:
