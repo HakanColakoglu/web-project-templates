@@ -91,4 +91,50 @@ describe('Authentication Routes', () => {
       expect(response.body.message).toBe('User logged out successfully');
     });
   });
+
+  describe('Session Management', () => {
+    let cookie: string;
+
+    it('should log in successfully and create a session', async () => {
+      // First, sign up a user
+      await request(app).post('/auth/signup').send({
+        username: 'sessiontestuser',
+        password: 'password123',
+      });
+
+      // Then, sign in with the new user
+      const response = await request(app).post('/auth/signin').send({
+        username: 'sessiontestuser',
+        password: 'password123',
+      });
+
+      expect(response.status).toBe(302); // Check for successful redirect
+      expect(response.header['set-cookie']).toBeDefined(); // Check that cookies are set
+      cookie = response.header['set-cookie'][0].split(';')[0]; // Extract cookie for session
+    });
+
+    it('should allow access to protected route with valid session', async () => {
+      // Access the protected route with the session cookie
+      const response = await request(app)
+        .get('/protected')
+        .set('Cookie', cookie);
+
+      expect(response.status).toBe(200); // Expect successful access
+      expect(response.text).toContain('User: sessiontestuser!'); // Check for correct response
+    });
+
+    it('should log out successfully and destroy the session', async () => {
+      // Log out the user
+      const response = await request(app).post('/auth/logout').set('Cookie', cookie);
+
+      expect(response.status).toBe(200); // Expect successful logout
+
+      // Try to access the protected route again with the same cookie
+      const protectedResponse = await request(app)
+        .get('/protected')
+        .set('Cookie', cookie);
+
+      expect(protectedResponse.status).toBe(401); // Expect Unauthorized due to session destruction
+    });
+  });
 });
