@@ -3,7 +3,7 @@ const mockUserDataStore: Record<string, any[]> = {
   users: [], // Mock users table specifically
 }; 
 
-let isPoolClosed = false; // Track if the pool is closed
+let isPoolClosed = false; // Track if the pool is closed, otherwise tests are having problems.
 
 // Mock pool object
 const mockPool = {
@@ -62,11 +62,12 @@ const mockPool = {
 
         if (tableName.toLowerCase() === 'users') {
           // Specific logic for inserting into 'users' table
-          const [username, password] = params || [];
+          const [username, password, role] = params || [];
           const newUser = {
             id: mockUserDataStore['users'].length + 1,
             username,
             password,
+            role: role || 'user'
           };
           mockUserDataStore['users'].push(newUser);
           return Promise.resolve({ rows: [newUser] });

@@ -1,3 +1,5 @@
+// Mock all 6 methods, otherwise sessions won't work
+
 const mockDataStore: Record<string, string> = {}; // In-memory store to mock Redis data
 
 const mockRedisClient = {

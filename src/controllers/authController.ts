@@ -4,7 +4,7 @@ import { pool } from '../app';
 
 // Sign-up function
 export const signUp = async (req: Request, res: Response) => {
-  const { username, password } = req.body;
+  const { username, password, role } = req.body;
 
   try {
     // Check if user already exists
@@ -22,8 +22,8 @@ export const signUp = async (req: Request, res: Response) => {
 
     // Insert user into the database
     const result = await pool.query(
-      'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *',
-      [username, hashedPassword]
+      'INSERT INTO users (username, password, role) VALUES ($1, $2, $3) RETURNING *',
+      [username, hashedPassword, role]
     );
 
     const newUser = result.rows[0];
